@@ -22,12 +22,20 @@ with open(args.config, 'r') as f:
 
 
 def load_data():
-    data = pd.read_csv('../features/rescaling.csv')
+    if args['data'] == 'pca':
+        data = pd.read_csv('../features/pca.csv')
+    elif args['data'] == 'norm':
+        data = pd.read_csv('../features/rescaling.csv')
+
     data.loc[data.label == 'patches', 'label'] = 0
     data.loc[data.label == 'scratches', 'label'] = 1
     # print(data)
-    train_X, test_X, train_Y, test_Y = train_test_split(data[data.columns[0:6]].values, data.label.values, test_size=0.2, random_state=1)
-    # print(train_X)
+    if args['data'] == 'pca':
+        train_X, test_X, train_Y, test_Y = train_test_split(data[data.columns[0:2]].values, data.label.values, test_size=0.2, random_state=1)
+    elif args['data'] == 'norm':
+        train_X, test_X, train_Y, test_Y = train_test_split(data[data.columns[0:6]].values, data.label.values, test_size=0.2, random_state=1)
+        if args['load'] == True:
+            print("test  labels:   ", test_Y)
     train_len = np.size(train_X, 0)
     test_len = np.size(test_X, 0)
     total_len = train_len + test_len
@@ -119,7 +127,7 @@ def train_MLP():
     accuracy = accuracy_score(test_Y.data, predict_label.data)
     print ('MLP prediction accuracy: ', accuracy)
     op = args['mlp']
-    torch.save(model, "../save_model/rescaling_mlp_" + str(accuracy) + "_" + str(op['hidden_size']) + "_" + str(args['lr']))
+    torch.save(model, "../save_model/" + args['data'] + "_mlp_" + str(accuracy) + "_" + str(op['hidden_size']) + "_" + str(args['lr']))
 
 def load_MLP():
     train_X, test_X, train_Y, test_Y = load_data()
@@ -128,14 +136,16 @@ def load_MLP():
     test_X = torch.from_numpy(test_X).float().cuda()
     train_Y = torch.from_numpy(train_Y).long().cuda()
     test_Y = torch.from_numpy(test_Y).long().cuda()
-
+    print("Loading Model:" + " " + args['model'].strip('../save_model/'))
     model = torch.load(args['model'])
+    print("Model Loaded!")
     model.eval()
     predict_out = model(test_X)
     predict_out = predict_out.cpu()
     _, predict_label = torch.max(predict_out, 1)
     test_Y.data = test_Y.data.cpu()
     accuracy = accuracy_score(test_Y.data, predict_label.data)
+    print("predict labels: ", predict_label.data.numpy())
     print ('MLP prediction accuracy: ', accuracy)
 
 def knn():
@@ -158,4 +168,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-    

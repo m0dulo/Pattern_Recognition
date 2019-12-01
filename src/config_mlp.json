@@ -1,14 +1,15 @@
 {
-    "seed": 20005254,
-    "load" : false,
-    "model" : "../save_model/rescaling_mlp0.9", 
-    "lr": 0.003,
-    "num_epochs": 300,
-    "num_labels": 2,
-    "input_size": 6,
-    "type": "mlp",
-    "mlp": {
-      "dropout": 0.2,
-      "hidden_size": 1024
-    }
+  "seed": 20005254,
+  "load" : false,
+  "data" : "norm",
+  "input_size": 6,
+  "model" : "../save_model/_norm_mlp_0.9_512_0.003", 
+  "lr": 0.003,
+  "num_epochs": 300,
+  "num_labels": 2,
+  "type": "mlp",
+  "mlp": {
+    "dropout": 0.2,
+    "hidden_size": 512
+  }
 }
