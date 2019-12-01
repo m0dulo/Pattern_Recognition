@@ -34,8 +34,8 @@ def load_data():
         train_X, test_X, train_Y, test_Y = train_test_split(data[data.columns[0:2]].values, data.label.values, test_size=0.2, random_state=1)
     elif args['data'] == 'norm':
         train_X, test_X, train_Y, test_Y = train_test_split(data[data.columns[0:6]].values, data.label.values, test_size=0.2, random_state=1)
-        if args['load'] == True:
-            print("test  labels:   ", test_Y)
+    if args['load'] == True:
+        print("test  labels:   ", test_Y)
     train_len = np.size(train_X, 0)
     test_len = np.size(test_X, 0)
     total_len = train_len + test_len
