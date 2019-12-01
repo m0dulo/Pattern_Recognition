@@ -1,5 +1,5 @@
 # Pattern_Recognition
-Feature extraction of surface defect images based on GLCM and classification using  k-nearest neighbor algorithm and multi-layer perceptron concisely implemented with [Pytorch](https://pytorch.org/).
+Feature extraction of surface defect images based on Grey-Level Co-occurrence Matrix(GLCM) and classification using  k-nearest neighbor algorithm and multi-layer perceptron concisely implemented with [Pytorch](https://pytorch.org/).
 
 ## References:
 * [GLCM Texture Feature - Echoview](https://support.echoview.com/WebHelp/Windows_and_Dialog_Boxes/Dialog_Boxes/Variable_properties_dialog_box/Operator_pages/GLCM_Texture_Features.htm)
