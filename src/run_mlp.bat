@@ -1,0 +1,1 @@
+python classfication.py --config config_mlp.json
