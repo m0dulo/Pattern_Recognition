@@ -1,5 +1,7 @@
 {
     "type": "knn",
+    "data" : "norm",
+    "load": true,
     "knn": {
       "k": 1  
     }
