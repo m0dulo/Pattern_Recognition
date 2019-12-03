@@ -8,6 +8,7 @@ import json
 import random
 import argparse
 import logging
+import time
 import os
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
@@ -29,18 +30,18 @@ def load_data():
 
     data.loc[data.label == 'patches', 'label'] = 0
     data.loc[data.label == 'scratches', 'label'] = 1
-    # print(data)
+    # print(data)   
     if args['data'] == 'pca':
         train_X, test_X, train_Y, test_Y = train_test_split(data[data.columns[0:2]].values, data.label.values, test_size=0.2, random_state=1)
     elif args['data'] == 'norm':
         train_X, test_X, train_Y, test_Y = train_test_split(data[data.columns[0:6]].values, data.label.values, test_size=0.2, random_state=1)
-    if args['load'] == True:
-        print("test  labels:   ", test_Y)
     train_len = np.size(train_X, 0)
     test_len = np.size(test_X, 0)
     total_len = train_len + test_len
 
     print('Data loaded! , total len:{0}, train len:{1}, test len:{2}'.format(total_len, train_len, test_len))
+    if args['load'] == True:
+        print("test  labels:   ", test_Y)
 
     return train_X, test_X, train_Y, test_Y
 
@@ -54,20 +55,20 @@ class MLP(nn.Module):
         
         self.fc1 = nn.Linear(config['input_size'], hidden_size)
         self.converter1 = nn.ReLU()
-        self.fc2 = nn.Linear(hidden_size, hidden_size)
-        self.converter2 = nn.ReLU()
-        self.fc3 = nn.Linear(hidden_size, config['num_labels'])
-        self.dropout = nn.Dropout(drop_prob)
+        # self.fc2 = nn.Linear(hidden_size, hidden_size // 2)
+        # self.converter2 = nn.ReLU()
+        self.fc2 = nn.Linear(hidden_size, config['num_labels'])
+        # self.dropout = nn.Dropout(drop_prob)
         self.softmax = nn.Softmax(dim=1)
 
     def forward(self, features):
         X = self.converter1(self.fc1(features))
-        X = self.converter2(self.fc2(X))
+        # X = self.converter2(self.fc2(X))
         # X = self.dropout(X)
-        X = self.fc3(X)
+        X = self.fc2(X)
+        # X = self.fc3(X)
         # print(X)
         X = self.softmax(X)
-        
         return X
 
 
@@ -98,7 +99,8 @@ def train_MLP():
     print("============start trainning==============")
     
     for epoch in range(args['num_epochs']):
-        loss_value, train_acc = 0.0, 0.0
+        loss_value, train_acc, start  = 0.0, 0.0, time.time()
+        # print(start)
         optimizer.zero_grad()
         out = model(train_X)
         loss = cross_entropy_loss(out, train_Y) 
@@ -108,16 +110,17 @@ def train_MLP():
         train_predict_out = out.cpu()
         _, train_predict_label = torch.max(train_predict_out, 1)
         train_acc = accuracy_score(train_labels, train_predict_label.data)
+        time_s = time.time() - start
 
         test_predict_out = model(test_X)
         test_predict_out = test_predict_out.cpu()
         _, test_predict_label = torch.max(test_predict_out, 1)
         test_acc = accuracy_score(test_labels, test_predict_label.data)
 
-        if (epoch + 1) % 50 == 0:
+        if (epoch + 1) % 30 == 0:
             loss_value = loss.item()
-            print('epoch %.3d, loss %.4f, train acc %.3f, test acc %.3f'
-                % (epoch + 1, loss_value, train_acc, test_acc))
+            print('epoch %.3d, loss %.4f, train acc %.3f, train time %.4f sec, test acc %.3f'
+                % (epoch + 1, loss_value, train_acc, time_s, test_acc))
     
     print("============trainning end==============")
     predict_out = model(test_X)
@@ -154,6 +157,7 @@ def knn():
     train_X, test_X, train_Y, test_Y = load_data()
     classfier.fit(train_X, train_Y)
     predict_label = classfier.predict(test_X)
+    print("predict labels: ", predict_label)
     accuracy = accuracy_score(test_Y.data, predict_label.data)
     print ('KNN prediction accuracy: ', accuracy)
 
